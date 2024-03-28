@@ -1,0 +1,18 @@
+{
+  "tally-server": {
+    "port": 38383,
+    "network-id": "00",
+    "scenes": {
+      "场景": "A01",
+      "场景 2": "A02",
+      "场景 3": "A03"
+    }
+  },
+  "upstream-server": {
+    "type": "obs-websocket",
+    "host": "localhost",
+    "port": 4455,
+    "password": "6cemDEul53nEQwUZ",
+    "timeout": 5
+  }
+}
