@@ -1,5 +1,9 @@
 package top.tsstudio.tcpserver;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import top.tsstudio.configurateHelper;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class server {
+    private final Logger logger = LogManager.getLogger("Main");
 
     private Set<connectionHandler> connectionHandlers = new HashSet<>();
     public boolean running = true;
@@ -17,7 +22,7 @@ public class server {
     public String currentPGM, currentPVW;
 
     public void push_message(String message, String type) {
-        System.out.println("Pushing message: " + message + " type: " + type);
+        logger.info("Pushing message: " + message + " type: " + type);
         if (type.equals("PGM")) {
             this.currentPGM = message;
         }
@@ -25,7 +30,6 @@ public class server {
             this.currentPVW = message;
         }
         for (connectionHandler handler : connectionHandlers) {
-            System.out.println("Pushing message to client" + handler.socket.getInetAddress());
             if (!handler.alive) {
                 continue;
             }
@@ -33,13 +37,14 @@ public class server {
         }
     }
 
-    public void start_server() {
+    public void start_server(configurateHelper config) {
         try {
-            this.serverSocket = new ServerSocket(38383);
-            System.out.println("Waiting for connection...");
+            this.serverSocket = new ServerSocket(config.tcpPort);
+            logger.info("Server started on port" + config.tcpPort);
             this.Service();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            logger.error("Failed to start server, shutting down...", e);
         }
     }
 
@@ -51,6 +56,6 @@ public class server {
             connectionHandlers.add(handler);
             executorService.execute(handler);
         }
-        System.out.println("Server is shutting down...");
+        logger.error("Server stopped");
     }
 }

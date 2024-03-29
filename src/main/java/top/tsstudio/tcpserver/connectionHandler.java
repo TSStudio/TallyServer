@@ -1,9 +1,13 @@
 package top.tsstudio.tcpserver;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 import java.net.Socket;
 
 public class connectionHandler implements Runnable {
+    private final Logger logger = LogManager.getLogger("Main");
     private OutputStream ostream;
 
     private int heartBeatCounter = 0;
@@ -14,7 +18,6 @@ public class connectionHandler implements Runnable {
     //private final Socket socket;
 
     public void messagePusher(String message, String type) {
-        System.out.println("Pushing message: " + message + " type: " + type + " to client" + socket.getInetAddress());
         try {
             //make message 3 chars long
             if (message.length() < 3) {
@@ -35,7 +38,7 @@ public class connectionHandler implements Runnable {
                 return;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Err", e);
         }
     }
 
@@ -49,7 +52,7 @@ public class connectionHandler implements Runnable {
                 this.messagePusher(tcpServer.currentPGM, "PGM");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Err", e);
         }
 
     }
@@ -60,7 +63,7 @@ public class connectionHandler implements Runnable {
     }
 
     public void run() {
-        System.out.println("New connection accept:" + socket.getInetAddress());
+        logger.info("New connection accept:" + socket.getInetAddress());
         StringBuilder buffer = new StringBuilder();
         try {
             InputStream inputStream = socket.getInputStream();
@@ -72,34 +75,30 @@ public class connectionHandler implements Runnable {
                 if (c == -1) {
                     break;
                 } else if (c == 0) {
-                    System.out.println("Received: " + buffer.toString());
                     String message = buffer.toString();
                     if (message.equals("HEARTBEAT")) {
                         heartBeatResponder();
                     }
-
-                    //clear buffer
                     buffer.setLength(0);
-                    //process data
                 } else {
                     buffer.append((char) c);
                     if (buffer.length() > 1024000) {//1MB
                         //wtf when this happens?
-                        System.out.println("Message too long. Discarding...");
+                        logger.warn("Message too long. Discarding...");
                         break;
                     }
                 }
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Err", e);
         } finally {
             this.alive = false;
             try {
                 if (socket != null)
                     socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Err", e);
             }
         }
     }

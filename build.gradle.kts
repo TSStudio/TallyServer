@@ -14,6 +14,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("io.obs-websocket.community:client:2.0.0")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
 }
 
 tasks.test {

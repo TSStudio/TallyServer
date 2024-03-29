@@ -4,6 +4,8 @@ import io.obswebsocket.community.client.OBSRemoteController;
 import io.obswebsocket.community.client.OBSRemoteControllerBuilder;
 import io.obswebsocket.community.client.message.event.scenes.CurrentPreviewSceneChangedEvent;
 import io.obswebsocket.community.client.message.event.scenes.CurrentProgramSceneChangedEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import top.tsstudio.configurateHelper;
 import top.tsstudio.tcpserver.server;
 
@@ -11,6 +13,7 @@ public class client {
     private OBSRemoteController controller;
 
     public client(configurateHelper config, server tcpServer) {
+        Logger logger = LogManager.getLogger("Main");
         OBSRemoteControllerBuilder controllerBuilder = OBSRemoteController.builder();
         controllerBuilder.host(config.obsAddress);
         controllerBuilder.port(config.obsPort);
@@ -22,16 +25,16 @@ public class client {
             tcpServer.push_message(config.scenes.get(event.getSceneName()), "PVW");
         });
         if (config.obsPasswordEnabled) {
-            System.out.println("Password is enabled");
+            logger.info("Using password for OBS connection");
             controllerBuilder.password(config.obsPassword);
         }
         controllerBuilder.lifecycle().onClose((e) -> {
-            System.out.println("Disconnected from OBS");
+            logger.error("Connection to OBS closed, shutting down...");
             tcpServer.running = false;
             System.exit(1);
         });
         controllerBuilder.lifecycle().onReady(() -> {
-            System.out.println("Connected to OBS");
+            logger.info("Connection to OBS established");
             this.controller.getCurrentPreviewScene(
                     (response) -> tcpServer.push_message(config.scenes.get(response.getCurrentPreviewSceneName()), "PVW")
             );

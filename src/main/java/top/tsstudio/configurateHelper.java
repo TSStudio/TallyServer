@@ -7,11 +7,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.FileReader;
 import java.io.IOException;
 
 public class configurateHelper {
+    private final Logger logger = LogManager.getLogger("Main");
     public int tcpPort = 38383;
     public String networkID = "00";
     public Map<String, String> scenes = new HashMap<>();
@@ -27,7 +30,7 @@ public class configurateHelper {
             FileReader reader = new FileReader(filepath);
             jsonElement = JsonParser.parseReader(reader);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to read from file", e);
         }
         return jsonElement;
     }

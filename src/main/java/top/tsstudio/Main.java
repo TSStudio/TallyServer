@@ -1,34 +1,35 @@
 package top.tsstudio;
 
-import io.obswebsocket.community.client.OBSRemoteController;
-import io.obswebsocket.community.client.OBSRemoteControllerBuilder;
-import io.obswebsocket.community.client.message.event.scenes.CurrentPreviewSceneChangedEvent;
-import io.obswebsocket.community.client.message.event.scenes.CurrentProgramSceneChangedEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import top.tsstudio.obsclient.client;
 import top.tsstudio.tcpserver.server;
 
 public class Main {
 
     public static void main(String[] args) {
+        Logger logger = LogManager.getLogger("Main");
         server tcpServer = new server();
         configurateHelper config;
 
         if (args.length >= 1) {
             config = new configurateHelper(args[0]);
         } else if (System.getenv("TALLY_CONFIG_PATH") != null) {
-            System.out.println("Using config file from environment variable");
+            logger.info("Using config file from environment variable");
             config = new configurateHelper(System.getenv("TALLY_CONFIG_PATH"));
         } else {
-            System.out.println("No config file provided, using default config");
+            logger.warn("No config file provided, using default config, note this doesn't contain machine info so it can only run but not helpful.");
             config = new configurateHelper();
         }
 
         client client = new client(config, tcpServer);
 
-        System.out.println("Initializing TCP Server...");
-        Thread serverThread = new Thread(tcpServer::start_server);
+        logger.info("Initializing TCP Server...");
+        Thread serverThread = new Thread(() -> {
+            tcpServer.start_server(config);
+        });
         serverThread.start();
-        System.out.println("Initializing OBS Connection...");
+        logger.info("Initializing OBS Connection...");
         client.connect();
     }
 }
