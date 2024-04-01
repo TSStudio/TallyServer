@@ -21,3 +21,11 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.jar {
+    archiveBaseName.set("TallyServer")
+    archiveVersion.set("1.0.0")
+    manifest {
+        attributes["Main-Class"] = "top.tsstudio.Main"
+    }
+}
