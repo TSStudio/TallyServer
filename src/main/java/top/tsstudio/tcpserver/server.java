@@ -42,7 +42,7 @@ public class server {
         try {
             this.config = config;
             this.serverSocket = new ServerSocket(config.tcpPort);
-            logger.info("Server started on port" + config.tcpPort);
+            logger.info("Server started on port " + config.tcpPort);
             this.Service();
         } catch (IOException e) {
             //e.printStackTrace();

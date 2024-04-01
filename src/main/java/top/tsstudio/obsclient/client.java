@@ -12,7 +12,7 @@ import top.tsstudio.tcpserver.server;
 public class client {
     private OBSRemoteController controller;
 
-    public client(configurateHelper config, server tcpServer) {
+    public client(configurateHelper config, server tcpServer, Thread serverThread) {
         Logger logger = LogManager.getLogger("Main");
         OBSRemoteControllerBuilder controllerBuilder = OBSRemoteController.builder();
         controllerBuilder.host(config.obsAddress);
@@ -31,6 +31,7 @@ public class client {
         controllerBuilder.lifecycle().onClose((e) -> {
             logger.error("Connection to OBS closed, shutting down...");
             tcpServer.running = false;
+            serverThread.interrupt();
             System.exit(1);
         });
         controllerBuilder.lifecycle().onReady(() -> {

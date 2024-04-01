@@ -18,18 +18,21 @@ public class Main {
             logger.info("Using config file from environment variable");
             config = new configurateHelper(System.getenv("TALLY_CONFIG_PATH"));
         } else {
-            logger.warn("No config file provided, using default config, note this doesn't contain machine info so it can only run but not helpful.");
+            logger.warn("No config file provided, using default config, note this doesn't contain machine info so it can only run the server and does nothing.");
             config = new configurateHelper();
         }
-
-        client client = new client(config, tcpServer);
-
         logger.info("Initializing TCP Server...");
         Thread serverThread = new Thread(() -> {
             tcpServer.start_server(config);
         });
+        client client = new client(config, tcpServer, serverThread);
         serverThread.start();
         logger.info("Initializing OBS Connection...");
         client.connect();
+        try {
+            serverThread.join();
+        } catch (InterruptedException e) {
+            logger.error("Interrupted", e);
+        }
     }
 }
