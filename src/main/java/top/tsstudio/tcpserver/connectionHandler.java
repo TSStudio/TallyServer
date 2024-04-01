@@ -18,6 +18,7 @@ public class connectionHandler implements Runnable {
     //private final Socket socket;
 
     public void messagePusher(String message, String type) {
+        String networkID = tcpServer.config.networkID;
         try {
             //make message 3 chars long
             if (message.length() < 3) {
@@ -28,12 +29,12 @@ public class connectionHandler implements Runnable {
                 message = message.substring(0, 3);
             }
             if (type.equals("PVW")) {
-                this.ostream.write(("\002PVW" + message + "\003").getBytes());
+                this.ostream.write(("\002PVW" + message + "\003" + networkID + "\004").getBytes());
                 this.ostream.flush();
                 return;
             }
             if (type.equals("PGM")) {
-                this.ostream.write(("\002PGM" + message + "\003").getBytes());
+                this.ostream.write(("\002PGM" + message + "\003" + networkID + "\004").getBytes());
                 this.ostream.flush();
                 return;
             }

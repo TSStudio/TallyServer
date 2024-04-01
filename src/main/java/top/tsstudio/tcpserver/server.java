@@ -20,6 +20,7 @@ public class server {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private ServerSocket serverSocket;
     public String currentPGM, currentPVW;
+    public configurateHelper config;
 
     public void push_message(String message, String type) {
         logger.info("Pushing message: " + message + " type: " + type);
@@ -39,6 +40,7 @@ public class server {
 
     public void start_server(configurateHelper config) {
         try {
+            this.config = config;
             this.serverSocket = new ServerSocket(config.tcpPort);
             logger.info("Server started on port" + config.tcpPort);
             this.Service();
