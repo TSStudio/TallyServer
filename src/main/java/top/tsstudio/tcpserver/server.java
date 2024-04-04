@@ -19,17 +19,62 @@ public class server {
     public boolean running = true;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private ServerSocket serverSocket;
-    public String currentPGM, currentPVW;
+    public String currentPGMScene, currentPVWScene;
     public configurateHelper config;
 
-    public void push_message(String message, String type) {
-        logger.info("Pushing message: " + message + " type: " + type);
+    public void push_illuminance_message_by_machine(String machine, int illuminance) {
+        logger.info("Pushing illuminance message: " + machine + " " + illuminance);
+        for (connectionHandler handler : connectionHandlers) {
+            if (!handler.alive) {
+                continue;
+            }
+            handler.illuminancePusher(machine, illuminance);
+        }
+    }
+
+    public void push_illuminance_message_by_scene(String scene, int illuminance) {
+        logger.info("Pushing illuminance message: " + scene + " " + illuminance);
+        String machine = config.scenes.get(scene);
+        for (connectionHandler handler : connectionHandlers) {
+            if (!handler.alive) {
+                continue;
+            }
+            handler.illuminancePusher(machine, illuminance);
+        }
+    }
+
+    public void push_message_by_scene(String scene, String type) {
+        logger.info("Pushing scene: " + scene + " type: " + type);
+        //check if scene is in config.scenes' keys
+        String message = config.scenes.get(scene);
+        if (message == null) {
+            logger.error("Scene not found in config: " + scene);
+            return;
+        }
         if (type.equals("PGM")) {
-            this.currentPGM = message;
+            this.currentPGMScene = scene;
         }
         if (type.equals("PVW")) {
-            this.currentPVW = message;
+            this.currentPVWScene = scene;
         }
+        for (connectionHandler handler : connectionHandlers) {
+            if (!handler.alive) {
+                continue;
+            }
+            handler.messagePusher(message, type);
+        }
+    }
+
+    public void reload_push_message_by_scene() {
+        this.push_message_by_scene(this.currentPGMScene, "PGM");
+        this.push_message_by_scene(this.currentPVWScene, "PVW");
+    }
+
+    /**
+     * @deprecated Use push_message_by_scene instead
+     */
+    public void push_message(String message, String type) {
+        logger.info("Pushing message: " + message + " type: " + type);
         for (connectionHandler handler : connectionHandlers) {
             if (!handler.alive) {
                 continue;

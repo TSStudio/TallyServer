@@ -19,10 +19,10 @@ public class client {
         controllerBuilder.port(config.obsPort);
         controllerBuilder.connectionTimeout(config.obsTimeout);
         controllerBuilder.registerEventListener(CurrentProgramSceneChangedEvent.class, event -> {
-            tcpServer.push_message(config.scenes.get(event.getSceneName()), "PGM");
+            tcpServer.push_message_by_scene(event.getSceneName(), "PGM");
         });
         controllerBuilder.registerEventListener(CurrentPreviewSceneChangedEvent.class, event -> {
-            tcpServer.push_message(config.scenes.get(event.getSceneName()), "PVW");
+            tcpServer.push_message_by_scene(event.getSceneName(), "PVW");
         });
         if (config.obsPasswordEnabled) {
             logger.info("Using password for OBS connection");
@@ -37,10 +37,10 @@ public class client {
         controllerBuilder.lifecycle().onReady(() -> {
             logger.info("Connection to OBS established");
             this.controller.getCurrentPreviewScene(
-                    (response) -> tcpServer.push_message(config.scenes.get(response.getCurrentPreviewSceneName()), "PVW")
+                    (response) -> tcpServer.push_message_by_scene(response.getCurrentPreviewSceneName(), "PVW")
             );
             this.controller.getCurrentProgramScene(
-                    (response) -> tcpServer.push_message(config.scenes.get(response.getCurrentProgramSceneName()), "PGM")
+                    (response) -> tcpServer.push_message_by_scene(response.getCurrentProgramSceneName(), "PGM")
             );
         });
         this.controller = controllerBuilder.build();

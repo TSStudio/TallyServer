@@ -1,7 +1,7 @@
 {
   "tally-server": {
     "port": 38383,
-    "network-id": "00",
+    "network-id": "000",
     "scenes": {
       "场景": "A01",
       "场景 2": "A02",

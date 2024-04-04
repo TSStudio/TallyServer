@@ -3,7 +3,6 @@ package top.tsstudio;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -14,9 +13,10 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class configurateHelper {
+    public String last_filepath = null;
     private final Logger logger = LogManager.getLogger("Main");
     public int tcpPort = 38383;
-    public String networkID = "00";
+    public String networkID = "000";
     public Map<String, String> scenes = new HashMap<>();
     public String obsAddress = "localhost";
     public int obsPort = 4455;
@@ -35,7 +35,12 @@ public class configurateHelper {
         return jsonElement;
     }
 
-    public configurateHelper(String filepath) {
+    public void load(String filepath) {
+        if (filepath == null) {
+            logger.error("No file path provided");
+            return;
+        }
+        this.last_filepath = filepath;
         //read from file
         JsonElement jElement = this.readJsonFromFile(filepath);
         if (jElement != null && jElement.isJsonObject()) {
@@ -65,7 +70,10 @@ public class configurateHelper {
             }
 
         }
+    }
 
+    public configurateHelper(String filepath) {
+        this.load(filepath);
     }
 
     public configurateHelper() {

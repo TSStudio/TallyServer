@@ -43,14 +43,29 @@ public class connectionHandler implements Runnable {
         }
     }
 
+    public void illuminancePusher(String machine, int illuminance) {
+        String networkID = tcpServer.config.networkID;
+        try {
+            this.ostream.write(("\001ILA" + machine + illuminance + "\003" + networkID + "\004").getBytes());
+            //ILA for RGB, ILR for Red, ILG for Green, ILB for Blue
+            this.ostream.flush();
+        } catch (IOException e) {
+            logger.error("Err", e);
+        }
+    }
+
     private void heartBeatResponder() {
         try {
             this.ostream.write("HEARTBEAT".getBytes());
             this.ostream.flush();
             heartBeatCounter++;
             if (heartBeatCounter == 1) {
-                this.messagePusher(tcpServer.currentPVW, "PVW");
-                this.messagePusher(tcpServer.currentPGM, "PGM");
+                if (tcpServer.config.scenes.get(tcpServer.currentPVWScene) != null) {
+                    this.messagePusher(tcpServer.config.scenes.get(tcpServer.currentPVWScene), "PVW");
+                }
+                if (tcpServer.config.scenes.get(tcpServer.currentPGMScene) != null) {
+                    this.messagePusher(tcpServer.config.scenes.get(tcpServer.currentPGMScene), "PGM");
+                }
             }
         } catch (IOException e) {
             logger.error("Err", e);
